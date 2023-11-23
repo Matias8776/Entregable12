@@ -1,7 +1,10 @@
 import { Carts, Products, cartProducts, viewsProducts } from '../dao/factory.js';
+import jwt from 'jsonwebtoken';
+import config from '../config/config.js';
 
 const productManager = new Products();
 const cartManager = new Carts();
+const PRIVATE_KEY = config.passportSecret;
 
 export const publicAccess = (req, res, next) => {
   if (req.session.user) {
@@ -15,6 +18,18 @@ export const privateAccess = (req, res, next) => {
     return res.status(403).redirect('/');
   }
   next();
+};
+
+export const verifyToken = (req, res, next) => {
+  const token = req.query.token;
+  jwt.verify(token, PRIVATE_KEY, (err, decoded) => {
+    if (err) {
+      return res.status(401).redirect('/sendresetemail');
+    }
+
+    req.decoded = decoded;
+    next();
+  });
 };
 
 export const login = (req, res) => {
@@ -115,8 +130,17 @@ export const cart = async (req, res) => {
   });
 };
 
+export const sendResetEmail = (req, res) => {
+  res.render('sendResetEmail', {
+    style: 'sendResetEmail.css',
+    title: 'Ecommerce - Restaurar contraseña'
+  });
+};
+
 export const resetPassword = (req, res) => {
+  const email = req.params.email;
   res.render('resetPassword', {
+    email,
     style: 'resetPassword.css',
     title: 'Ecommerce - Restaurar contraseña'
   });

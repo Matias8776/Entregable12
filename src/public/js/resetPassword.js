@@ -1,11 +1,13 @@
 const resetPasswordForm = document.getElementById('resetPasswordForm');
+const email = document.querySelector('[data-email]').getAttribute('data-email');
 
 resetPasswordForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const data = new FormData(resetPasswordForm);
   const obj = {};
+  obj.email = email;
   data.forEach((value, key) => (obj[key] = value));
-  await fetch('api/sessions/resetPassword', {
+  await fetch('/api/sessions/resetpassword', {
     method: 'POST',
     body: JSON.stringify(obj),
     headers: {

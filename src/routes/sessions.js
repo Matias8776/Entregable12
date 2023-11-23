@@ -13,7 +13,8 @@ import {
   passportLogin,
   passportRegister,
   register,
-  resetPassword
+  resetPassword,
+  sendResetEmail
 } from '../controllers/sessions.js';
 
 const router = Router();
@@ -32,7 +33,9 @@ router.get('/github', passportGithub, github);
 
 router.get('/githubcallback', passportGithubCallback, githubCallback);
 
-router.post('/resetPassword', resetPassword);
+router.post('/sendresetemail', sendResetEmail);
+
+router.post('/resetpassword', resetPassword);
 
 router.get('/current', passportCurrent, current);
 

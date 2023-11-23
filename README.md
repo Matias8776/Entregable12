@@ -1,4 +1,4 @@
-# Entregable 11
+# Entregable 12
 
 &nbsp;
 
@@ -6,8 +6,8 @@
 
 ###
 
-- git clone https://github.com/Matias8776/Entregable11.git
-- cd Entregable11
+- git clone https://github.com/Matias8776/Entregable12.git
+- cd Entregable12
 - npm i
 - npm start
 
@@ -17,6 +17,12 @@
 
 - Persistencia: MONGO / FILE
 - LOGGER: DEV / PROD
+
+## Cambiar role de usuario:
+
+###
+
+- http://localhost:8080/api/users/premium/:uid
 
 ## Test Logger:
 

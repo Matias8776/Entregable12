@@ -170,7 +170,26 @@ const initializePassport = () => {
       },
       async (jwt_payload, done) => {
         try {
-          if (jwt_payload.user.role === 'user') {
+          if (jwt_payload.user.role === 'user' || jwt_payload.user.role === 'premium') {
+            return done(null, jwt_payload);
+          }
+          return done(null, false, { message: 'No autorizado' });
+        } catch (error) {
+          return done(error);
+        }
+      }
+    )
+  );
+  passport.use(
+    'premium',
+    new JWTStrategy(
+      {
+        jwtFromRequest: ExtractJWT.fromExtractors([cookieExtractor]),
+        secretOrKey: config.passportSecret
+      },
+      async (jwt_payload, done) => {
+        try {
+          if (jwt_payload.user.role === 'premium' || jwt_payload.user.role === 'admin') {
             return done(null, jwt_payload);
           }
           return done(null, false, { message: 'No autorizado' });

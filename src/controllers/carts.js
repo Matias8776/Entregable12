@@ -8,6 +8,7 @@ import {
   notFoundCartError,
   notFoundProductError,
   notFoundProductInCartError,
+  ownerCartError,
   updateCartError,
   updateProductQuantityInCartError
 } from '../services/errors/info.js';
@@ -60,6 +61,7 @@ export const addProductToCart = async (req, res, next) => {
   const cid = req.params.cid;
   const product = await productManager.getProductById(pid);
   const cart = await cartManager.getCartById(cid);
+  const owner = req.session.passport.user;
 
   if (!product) {
     const error = new CustomError({
@@ -82,6 +84,18 @@ export const addProductToCart = async (req, res, next) => {
     next(error);
     return;
   }
+
+  if (owner === product.owner) {
+    const error = new CustomError({
+      name: 'Mismo owner',
+      cause: ownerCartError(pid),
+      message: `El producto: ${pid} le pertenece y no puede agregarlo al carrito`,
+      code: EErrors.INVALID_TYPES
+    });
+    next(error);
+    return;
+  }
+
   await cartManager.addProductToCart(cid, pid);
 
   response(res, 200, 'Se agrego el producto correctamente al carrito');

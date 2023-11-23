@@ -1,9 +1,18 @@
 import passport from 'passport';
 import usersModel from '../dao/models/users.js';
-import { createHash, generateToken, passportCall } from '../utils.js';
+import {
+  createHash,
+  generateToken,
+  isValidPassword,
+  passportCall,
+  sendPasswordEmail
+} from '../utils.js';
 import config from '../config/config.js';
 import UserDTO from '../dao/DTOs/Users.js';
 import response from '../services/res/response.js';
+import jwt from 'jsonwebtoken';
+
+const PRIVATE_KEY = config.passportSecret;
 
 export const passportLogin = passport.authenticate('login', {
   failureRedirect: '/api/sessions/faillogin',
@@ -66,7 +75,12 @@ export const register = async (req, res) => {
 };
 
 export const failRegister = (req, res) => {
-  res.status(401).send({ status: 'error', message: 'El usuario ya existe con ese email o faltan datos' });
+  res
+    .status(401)
+    .send({
+      status: 'error',
+      message: 'El usuario ya existe con ese email o faltan datos'
+    });
 };
 
 export const logout = (req, res) => {
@@ -98,16 +112,37 @@ export const githubCallback = async (req, res) => {
     .redirect('/products');
 };
 
-export const resetPassword = async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).send({ status: 'error', message: 'Faltan datos' });
+export const sendResetEmail = async (req, res) => {
+  const { email } = req.body;
+  if (!email) {
+    return res
+      .status(400)
+      .send({ status: 'error', message: 'Ingrese su email' });
   }
   const user = await usersModel.findOne({ email });
   if (!user) {
     return res
       .status(400)
       .send({ status: 'error', message: 'No existe el usuario' });
+  }
+  const token = jwt.sign({ user }, PRIVATE_KEY, { expiresIn: '1h' });
+  const link = `http://localhost:8080/resetpassword/${email}?token=${token}`;
+  await sendPasswordEmail(email, link);
+  response(res, 200, 'Email enviado correctamente');
+};
+
+export const resetPassword = async (req, res) => {
+  const { email, password, comparePassword } = req.body;
+
+  if (!email || !password || !comparePassword) {
+    return res.status(400).send({ status: 'error', message: 'Faltan datos' });
+  }
+  if (password !== comparePassword) {
+    return res.status(400).send({ status: 'error', message: 'Las contraseñas ingresadas no coinciden' });
+  }
+  const user = await usersModel.findOne({ email });
+  if (isValidPassword(user, password)) {
+    return res.status(400).send({ status: 'error', message: 'Ingrese una contraseña diferente a la anterior' });
   }
   const passwordHash = createHash(password);
   await usersModel.updateOne({ email }, { $set: { password: passwordHash } });

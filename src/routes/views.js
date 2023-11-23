@@ -10,7 +10,9 @@ import {
   publicAccess,
   realtimeproducts,
   register,
-  resetPassword
+  resetPassword,
+  sendResetEmail,
+  verifyToken
 } from '../controllers/views.js';
 import { passportCall } from '../utils.js';
 
@@ -33,7 +35,9 @@ router.get('/products/:pid', privateAccess, product);
 
 router.get('/carts/:cid', privateAccess, cart);
 
-router.get('/resetPassword', publicAccess, resetPassword);
+router.get('/sendresetemail', publicAccess, sendResetEmail);
+
+router.get('/resetpassword/:email', publicAccess, verifyToken, resetPassword);
 
 router.use(notFound);
 

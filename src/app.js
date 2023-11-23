@@ -10,6 +10,7 @@ import MessagesManager from './dao/mongoDb/MessageManager.js';
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
 import sessionsRouter from './routes/sessions.js';
+import usersRouter from './routes/users.js';
 import passport from 'passport';
 import initializePassport from './config/passport.js';
 import cookieParser from 'cookie-parser';
@@ -49,6 +50,7 @@ app.use(passport.initialize());
 app.use('/api/carts', cartsRouter);
 app.use('/api/products', productsRouter);
 app.use('/api/sessions', sessionsRouter);
+app.use('/api/users', usersRouter);
 app.get('/mockingproducts', async (req, res) => {
   const products = [];
   for (let i = 0; i < 100; i++) {

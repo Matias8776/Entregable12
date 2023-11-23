@@ -37,3 +37,11 @@ export const updateCartError = (pid, quantity) => {
   quantity: necesita ser un numero positivo, recibido ${quantity}
   `;
 };
+
+export const ownerCartError = (pid) => {
+  return `El producto: ${pid} le pertenece y no puede agregarlo al carrito`;
+};
+
+export const ownerProductError = (pid) => {
+  return `El producto: ${pid} no le pertenece y no puede modificarlo`;
+};

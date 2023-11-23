@@ -4,7 +4,7 @@ import {
   deleteProduct,
   getProductById,
   getProducts,
-  passportAdmin,
+  passportPremium,
   updateProduct,
   uploaderProduct
 } from '../controllers/products.js';
@@ -15,10 +15,10 @@ router.get('/', getProducts);
 
 router.get('/:pid', getProductById);
 
-router.post('/', passportAdmin, uploaderProduct, addProduct);
+router.post('/', passportPremium, uploaderProduct, addProduct);
 
-router.put('/:pid', passportAdmin, updateProduct);
+router.put('/:pid', passportPremium, updateProduct);
 
-router.delete('/:pid', passportAdmin, deleteProduct);
+router.delete('/:pid', passportPremium, deleteProduct);
 
 export default router;

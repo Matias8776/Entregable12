@@ -6,13 +6,16 @@ import EErrors from '../services/errors/enums.js';
 import {
   duplicateKeyError,
   generateProductError,
-  notFoundProductError
+  notFoundProductError,
+  ownerProductError
 } from '../services/errors/info.js';
 import response from '../services/res/response.js';
 
 const productManager = new Products();
 
 export const passportAdmin = passportCall('admin');
+
+export const passportPremium = passportCall('premium');
 
 export const uploaderProduct = uploader.array('thumbnails');
 
@@ -50,13 +53,26 @@ export const getProductById = async (req, res, next) => {
 };
 
 export const addProduct = async (req, res, next) => {
-  let { title, description, price, thumbnails, code, stock, status, category } =
-    req.body;
+  let {
+    title,
+    description,
+    price,
+    thumbnails,
+    code,
+    stock,
+    status,
+    category,
+    owner
+  } = req.body;
 
   if (req.files) {
     thumbnails = req.files.map((file) => {
       return path.join(__dirname, '/public/img/', file.filename);
     });
+  }
+
+  if (req.session.user.role === 'premium') {
+    owner = req.session.passport.user;
   }
 
   if (
@@ -77,7 +93,8 @@ export const addProduct = async (req, res, next) => {
       code,
       stock,
       status,
-      category
+      category,
+      owner
     });
 
     if (!newProduct.success) {
@@ -116,6 +133,7 @@ export const addProduct = async (req, res, next) => {
 export const updateProduct = async (req, res, next) => {
   const pid = req.params.pid;
   const product = await productManager.getProductById(pid);
+  const owner = req.session.passport.user;
 
   if (!product) {
     const error = new CustomError({
@@ -123,6 +141,14 @@ export const updateProduct = async (req, res, next) => {
       cause: notFoundProductError(pid),
       message: `No existe el producto con el id: ${pid}`,
       code: EErrors.NOT_FOUND
+    });
+    next(error);
+  } else if (owner !== 'admin' && owner !== product.owner) {
+    const error = new CustomError({
+      name: 'Diferente owner',
+      cause: ownerProductError(pid),
+      message: `El producto: ${pid} no le pertenece y no puede modificarlo`,
+      code: EErrors.INVALID_TYPES
     });
     next(error);
   } else {
@@ -160,6 +186,7 @@ export const updateProduct = async (req, res, next) => {
 export const deleteProduct = async (req, res, next) => {
   const pid = req.params.pid;
   const product = await productManager.getProductById(pid);
+  const owner = req.session.passport.user;
 
   if (!product) {
     const error = new CustomError({
@@ -167,6 +194,14 @@ export const deleteProduct = async (req, res, next) => {
       cause: notFoundProductError(pid),
       message: `No existe el producto con el id: ${pid}`,
       code: EErrors.NOT_FOUND
+    });
+    next(error);
+  } else if (owner !== 'admin' && owner !== product.owner) {
+    const error = new CustomError({
+      name: 'Diferente owner',
+      cause: ownerProductError(pid),
+      message: `El producto: ${pid} no le pertenece y no puede modificarlo`,
+      code: EErrors.INVALID_TYPES
     });
     next(error);
   } else {

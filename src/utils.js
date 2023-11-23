@@ -116,6 +116,25 @@ export const sendPurchaseEmail = async (
   });
 };
 
+export const sendPasswordEmail = async (to, link) => {
+  await transport.sendMail({
+    from: `Ecommerce <${config.email}>`,
+    to: `${to}`,
+    subject: 'Restaurar contraseña',
+    html: `
+    <section>
+      <h1>Restaurar su contraseña</h1>
+      <h3>Haga click en el siguiente botón para restaurar su contraseña</h3>
+      <p>Este email es valido por 1 hora desde su creación</p>
+      <br>
+      <a href=${link}>
+        <button>Restaurar</button>
+      </a>
+    </section>
+    `
+  });
+};
+
 export const generateProduct = () => {
   return {
     title: faker.commerce.product(),
